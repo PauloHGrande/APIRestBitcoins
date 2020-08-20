@@ -14,7 +14,6 @@ public interface SaldoRepository extends JpaRepository<Saldos, Long>{
 	//Busca por ID Cliente.
 	Saldos findById(long id);
 	
-	//@Query(value = "select * from TB_CIET_SALDOS where cliente_id like %:id%",  nativeQuery = true)
 	@Query(value = "select * from tb_ciet_saldos where cliente_id = :id",  nativeQuery = true)
 	List<Saldos> findSaldoCliente(@Param("id") Long id);
 	
