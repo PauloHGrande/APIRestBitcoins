@@ -1,6 +1,7 @@
 package com.bitcoins.apirest.models;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -28,7 +29,15 @@ public class Clientes implements Serializable{
 	//@Size(max = 14, message = "O Cpf não pode ter mais que 14 caracteres.")
 	private String cpf;
 	
+	private Float saldo = 0.f;
 	
+	
+	public Float getSaldo() {
+		return saldo;
+	}
+	public void setSaldo(Float saldo) {
+		this.saldo = saldo;
+	}
 	public long getId() {
 		return id;
 	}
@@ -43,7 +52,7 @@ public class Clientes implements Serializable{
 	}
 	public String getCpf() {
 		return cpf;
-	}
+	}	
 	public void setCpf(String cpf) {
 		this.cpf = cpf;
 	}

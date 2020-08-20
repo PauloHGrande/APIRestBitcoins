@@ -50,17 +50,22 @@ public class ClienteControllers {
 		return clienteRepository.findById(id);
 	}
 	
-	@PostMapping("/cliente")
+	@PostMapping("/cliente/{nome}/{cpf}")
 	@ApiOperation(value="Salva um Cliente.")
-	public Clientes salvarCliente(@RequestBody Clientes cliente) throws APIException{
+	public Clientes salvarCliente(@PathVariable(value = "nome") String nome, @PathVariable(value = "cpf") String cpf) throws APIException{
 		// Salva um Cliente no Banco de Dados.
 		
-		if (cliente.getNome().length() > 50) {
+		Clientes cliente = new Clientes();
+		
+		if (nome.length() > 50) {
 			throw new APIException("O Campo Nome não pode ter mais que 50 caracteres.");
 		}
-		if (cliente.getNome().length() > 14) {
+		if (cpf.length() > 14) {
 			throw new APIException("O Campo Cpf não pode ter mais que 14 caracteres.");
 		}
+		
+		cliente.setNome(nome);
+		cliente.setCpf(cpf);
 		
 		try {						
 			return clienteRepository.save(cliente);			
@@ -70,29 +75,30 @@ public class ClienteControllers {
 		
 	}
 	
-	@DeleteMapping("/cliente")
+	@DeleteMapping("/cliente/{id}")
 	@ApiOperation(value="Apaga um Cliente.")
-	public void apagarCliente(@RequestBody Clientes cliente) throws APIException{
+	public void apagarCliente(@PathVariable(value = "id") long id) throws APIException{
 		// Apagar um Cliente no Banco de Dados.
 		
-		Clientes cli = new Clientes();
+		Clientes cliente = new Clientes();
 		
-		if (cliente.getId() != 0) {
-			cli = clienteRepository.findById(cliente.getId());
+		if (id != 0) {
+			cliente = clienteRepository.findById(id);
 			
-			if (cli == null) {
+			if (cliente == null) {
 				throw new APIException("Cliente não Localizado!");
 			}		
 			
 		}
 		
 		try {
-			clienteRepository.delete(cli);
+			clienteRepository.delete(cliente);
 		} catch (Exception e) {
 			throw new APIException("Erro ao tentar apagar o Cliente!");
 		}
 	}	
 	
+	/*
 	@PatchMapping("/cliente")
 	@ApiOperation(value="Atualiza um Cliente.")
 	public Clientes atualizarCliente(@RequestBody Clientes cliente) throws APIException{
@@ -103,5 +109,6 @@ public class ClienteControllers {
 			throw new APIException("Erro ao tentar Atualizar o Cliente!");
 		}
 		
-	}	
+	}
+	*/	
 }
