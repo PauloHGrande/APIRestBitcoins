@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.bitcoins.apirest.models.Clientes;
-import com.bitcoins.apirest.models.Saldos;
+
 // Responsavel por fazer a persistencia no Banco de Dados
 public interface ClienteRepository extends JpaRepository<Clientes, Long>{
 

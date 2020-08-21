@@ -1,18 +1,14 @@
 package com.bitcoins.apirest.models;
 
 import java.io.Serializable;
-import java.time.OffsetDateTime;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-
 
 public class RelCompra implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private float vlTotInvCompras;
 	
 	private float vlLucro;

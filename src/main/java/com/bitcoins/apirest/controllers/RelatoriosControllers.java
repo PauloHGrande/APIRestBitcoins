@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -23,6 +22,7 @@ import com.bitcoins.apirest.exception.APIException;
 import com.bitcoins.apirest.models.BitCoins;
 import com.bitcoins.apirest.models.Clientes;
 import com.bitcoins.apirest.models.CotacaoReal;
+import com.bitcoins.apirest.models.CotacaoReal2;
 import com.bitcoins.apirest.models.RelCompra;
 import com.bitcoins.apirest.repository.BitCoinRepository;
 import com.bitcoins.apirest.repository.ClienteRepository;
@@ -47,8 +47,6 @@ public class RelatoriosControllers {
 	@Autowired
 	SaldoRepository saldoRepository;
 	
-	@Autowired
-	private RestTemplateBuilder restTemplate;
 	
 	@GetMapping("/relatorios/saldo/{id_cliente}")
 	@ApiOperation(value="Retorna o Saldo Atual do Cliente.")
@@ -63,19 +61,15 @@ public class RelatoriosControllers {
 	
 	@GetMapping("/relatorios/bitcoins")
 	@ApiOperation(value="Obtem a Cotação do BitCoin Real.")
-	public CotacaoReal cotacaoBitCoin(){
-		
-		/*
-		HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM));
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        ResponseEntity<byte[]> response = restTemplate.build()
-            .exchange("https://api.coinbase.com/v2/prices/spot?currency=BRL", HttpMethod.GET, entity, byte[].class);
-        
-        String gg =  response.getHeaders().toString();
-        //Files.write(Paths.get("e:\\download-files\\demo1.pdf"), response.getBody());
-		*/
+	public CotacaoReal2 cotacaoBitCoin(){
+
 		RestTemplate template = new RestTemplate();
+		CotacaoReal2 cotacaoReal = new CotacaoReal2();
+
+		HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+	
 		
 		UriComponents uri = UriComponentsBuilder.newInstance()
 				.scheme("https")
@@ -83,14 +77,12 @@ public class RelatoriosControllers {
 				.path("v2/prices/spot")
 				.queryParam("currency", "BRL")
 				.build();
-		
-		ResponseEntity<CotacaoReal> Teste = template.getForEntity(uri.toUriString(), CotacaoReal.class);
-		
-		CotacaoReal cotacaoReal = new CotacaoReal();
+        
+		ResponseEntity<CotacaoReal> Teste = template.exchange(uri.toString(), HttpMethod.GET, entity, CotacaoReal.class);
 
-		cotacaoReal.setBase("BTC");
-		cotacaoReal.setCurrency("BRL");
-		cotacaoReal.setAmount(65363.568785f);
+		cotacaoReal.setBase(Teste.getBody().getData().getBase());
+		cotacaoReal.setCurrency(Teste.getBody().getData().getCurrency());
+		cotacaoReal.setAmount(Teste.getBody().getData().getAmount());
 		
 		return cotacaoReal;
 	}	
@@ -99,6 +91,9 @@ public class RelatoriosControllers {
 	@ApiOperation(value="Valor BitCoin-Dia/Lucro/Investimento e Saldo Atual por Cliente.")
 	public RelCompra valorTotalInvestido(@PathVariable(value = "id_cliente") long id_cliente) throws APIException{
 		
+		// Busca a Cotação pelo consumo da API.
+		CotacaoReal2 buscaCotacao = cotacaoBitCoin();
+				
 		RelCompra relcompra = new RelCompra();
 		
 		if (clienteRepository.findById(id_cliente) == null) {
@@ -106,9 +101,9 @@ public class RelatoriosControllers {
 		}
 								
 		relcompra.setVlTotInvCompras(bitCoinRepository.findTotalInves(id_cliente));
-		relcompra.setVlLucro(bitCoinRepository.findTotalLucro(id_cliente, 20f));
-		relcompra.setVlBitCoinDia(20f);
-		relcompra.setSaldoAtualBitCoin(bitCoinRepository.findSaldoAtualBtc(id_cliente, 20f));
+		relcompra.setVlLucro(bitCoinRepository.findTotalLucro(id_cliente, buscaCotacao.getAmount()));
+		relcompra.setVlBitCoinDia(buscaCotacao.getAmount());
+		relcompra.setSaldoAtualBitCoin(bitCoinRepository.findSaldoAtualBtc(id_cliente, buscaCotacao.getAmount()));
 		
 		return relcompra;
 	}	

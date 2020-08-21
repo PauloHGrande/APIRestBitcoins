@@ -1,7 +1,6 @@
 package com.bitcoins.apirest.models;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
 import javax.persistence.Entity;
